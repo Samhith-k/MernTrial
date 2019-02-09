@@ -22,6 +22,19 @@ exports.product_create = function (req, res,next) {
     })
 };
 
+exports.all_product_detail=function(req,res,next){
+	
+	    Product.find({}, function(err, products){
+       if(err){
+           console.log(err);
+       } else {
+          res.send(products);
+       }
+});
+}
+
+
+
 
 exports.product_details = function (req, res,next) {
     Product.findById(req.params.id, function (err, product) {
