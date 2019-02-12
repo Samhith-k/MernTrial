@@ -20,6 +20,7 @@ router.post('/categories',product_controller.category_create);
 router.get('/categories',product_controller.all_category_detail);
 router.delete('/categories/:categoryName',product_controller.category_delete);
 router.post('/acts',product_controller.act_create);
+router.get('/acts',product_controller.all_act_detail);
 router.delete('/acts/:actid',product_controller.act_delete);
 module.exports = router;
 

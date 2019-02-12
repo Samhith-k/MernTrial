@@ -218,7 +218,7 @@ exports.act_create = function (req, res,next) {
 };
 
 exports.act_delete = function (req, res,next) {
-     Act.remove({ categoryName: req.params.actid }, function (err, something) {
+     Act.remove({ actid: req.params.actid }, function (err, something) {
                     console.log('inside Delete', something);
                 if (err) return next(err);
                 res.json({
@@ -226,7 +226,19 @@ exports.act_delete = function (req, res,next) {
                     status: 200});}
 )};
 
-
+exports.all_act_detail=function(req,res,next){
+    
+        Act.find({}, function(err, acts){
+       if(err){
+           console.log(err);
+       } else {
+          res.json({
+            message : "all acts",
+            data: acts
+          });
+       }
+});
+}
 
 
 
