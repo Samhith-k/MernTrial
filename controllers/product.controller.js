@@ -188,33 +188,45 @@ exports.category_delete = function (req, res,next) {
 
 
 exports.act_create = function (req, res,next) {
-    let act = new Act(
-        {
-            username: req.body.username,
-            actid: req.body.actid,
-            caption: req.body.caption,
-            upvotes: req.body.upvotes,
-            timestamp: req.body.timestamp,
-            imgB64: req.body.imgB64
-        }
-    );
-
-    act.save(function (err) {
-        if (err) {
+    User.find({username: req.body.username}, function(err,user){
+        if(user.length==0){
             res.json({
-                message: 'actid exists',
-                status: 400,
-                error: err
+                message: 'username does not exist',
+                status: 401,        
             });
         }
         else{
-            res.json({
-                message: 'act creation successful',
-                status: 201
-            });
-        }
-        
-    })
+            let act = new Act(
+            {
+                username: req.body.username,
+                actid: req.body.actid,
+                caption: req.body.caption,
+                upvotes: req.body.upvotes,
+                timestamp: req.body.timestamp,
+                imgB64: req.body.imgB64
+            }
+        );
+
+        act.save(function (err) {
+            if (err) {
+                res.json({
+                    message: 'actid exists',
+                    status: 400,
+                    error: err
+                });
+            }
+            else{
+                res.json({
+                    message: 'act creation successful',
+                    status: 201
+                });
+            }
+            
+        })
+    }
+    });
+    
+    
 };
 
 exports.act_delete = function (req, res,next) {
@@ -240,7 +252,30 @@ exports.all_act_detail=function(req,res,next){
 });
 }
 
+exports.all_act_category_detail=function(req,res,next){
+    
+        Act.find({categoryName: req.params.categoryName}, function(err, acts){
+       if(err){
+           console.log(err);
+       } else {
+          res.json({
+            message : "all acts",
+            data: acts
+          });
+       }
+});
+}
 
+exports.all_act_category_size=function(req,res,next){
+    
+        Act.find({categoryName: req.params.categoryName}, function(err, acts){
+       if(err){
+           console.log(err);
+       } else {
+          res.send([acts.length]);
+       }
+});
+}
 
 
 

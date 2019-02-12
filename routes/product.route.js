@@ -22,5 +22,7 @@ router.delete('/categories/:categoryName',product_controller.category_delete);
 router.post('/acts',product_controller.act_create);
 router.get('/acts',product_controller.all_act_detail);
 router.delete('/acts/:actid',product_controller.act_delete);
+router.get('/categories/:categoryName/acts',product_controller.all_act_category_detail);
+router.get('/categories/:categoryName/acts/size',product_controller.all_act_category_size);
 module.exports = router;
 
