@@ -2,7 +2,6 @@ const Product = require('../models/product.model');
 const User = require('../models/userModel');
 const Act = require('../models/actModel');
 const Category = require('../models/categoryModel');
-
 //Simple version, without validation or sanitation
 exports.test = function (req, res) {
     res.send('Greetings from the Test controller!');
@@ -115,34 +114,13 @@ exports.user_details = function (req, res,next) {
 };
 
 exports.user_delete = function (req, res,next) {
-    User.find({username:req.params.username},function (err, user){
-        if (err){
-            res.json({
-                message: "Username does not exist",
-                status: 400
-            });
-        }
-        else {
-            if(user.length==0){
+     User.remove({ username: req.params.username }, function (err, something) {
+                    console.log('inside Delete', something);
+                if (err) return next(err);
                 res.json({
-                    message: "Username does not exist",
-                    status: 400
-                }); 
-            }
-            else{
-        User.remove({_id: user._id}, function (err, use) {
-            if (err)
-                res.send(err);
-            res.json({
-                status: 200,
-                message: 'User deleted'
-            });
-        });
-            }
-
-        }
-    })
-};
+                    message: "deleted",
+                    status: 200});}
+)};
 
 exports.all_user_detail=function(req,res,next){
     
