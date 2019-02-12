@@ -16,7 +16,10 @@ router.post('/users',product_controller.user_create);
 router.get('/users',product_controller.all_user_detail);
 router.get('/users/:username',product_controller.user_details);
 router.delete('/users/:username',product_controller.user_delete);
-
-
+router.post('/categories',product_controller.category_create);
+router.get('/categories',product_controller.all_category_detail);
+router.delete('/categories/:categoryName',product_controller.category_delete);
+router.post('/acts',product_controller.act_create);
+router.delete('/acts/:actid',product_controller.act_delete);
 module.exports = router;
 

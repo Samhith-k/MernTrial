@@ -135,3 +135,101 @@ exports.all_user_detail=function(req,res,next){
        }
 });
 }
+
+
+exports.category_create = function (req, res,next) {
+    let category = new Category(
+        {
+            categoryName: req.body.categoryName
+            
+        }
+    );
+
+    category.save(function (err) {
+        if (err) {
+            res.json({
+                message: 'category exists',
+                status: 400,
+                error: err
+            });
+        }
+        else{
+            res.json({
+                message: 'category successful',
+                status: 201
+            });
+        }
+        
+    })
+};
+
+exports.all_category_detail=function(req,res,next){
+    
+        Category.find({}, function(err, category){
+       if(err){
+           console.log(err);
+       } else {
+          res.json({
+            message : "all category",
+            data: category
+          });
+       }
+});
+}
+
+exports.category_delete = function (req, res,next) {
+     Category.remove({ categoryName: req.params.categoryName }, function (err, something) {
+                    console.log('inside Delete', something);
+                if (err) return next(err);
+                res.json({
+                    message: "deleted",
+                    status: 200});}
+)};
+
+
+exports.act_create = function (req, res,next) {
+    let act = new Act(
+        {
+            username: req.body.username,
+            actid: req.body.actid,
+            caption: req.body.caption,
+            upvotes: req.body.upvotes,
+            timestamp: req.body.timestamp,
+            imgB64: req.body.imgB64
+        }
+    );
+
+    act.save(function (err) {
+        if (err) {
+            res.json({
+                message: 'actid exists',
+                status: 400,
+                error: err
+            });
+        }
+        else{
+            res.json({
+                message: 'act creation successful',
+                status: 201
+            });
+        }
+        
+    })
+};
+
+exports.act_delete = function (req, res,next) {
+     Act.remove({ categoryName: req.params.actid }, function (err, something) {
+                    console.log('inside Delete', something);
+                if (err) return next(err);
+                res.json({
+                    message: "deleted",
+                    status: 200});}
+)};
+
+
+
+
+
+
+
+
