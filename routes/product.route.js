@@ -24,5 +24,6 @@ router.get('/acts',product_controller.all_act_detail);
 router.delete('/acts/:actid',product_controller.act_delete);
 router.get('/categories/:categoryName/acts',product_controller.all_act_category_detail);
 router.get('/categories/:categoryName/acts/size',product_controller.all_act_category_size);
+router.post('/acts/upvote',product_controller.act_upvote);
 module.exports = router;
 

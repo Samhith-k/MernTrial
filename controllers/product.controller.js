@@ -196,14 +196,23 @@ exports.act_create = function (req, res,next) {
             });
         }
         else{
-            let act = new Act(
+            Category.find({categoryName: req.body.categoryName}, function(err,category){
+                if(category.length==0){
+                    res.json({
+                        message: 'category does not exist',
+                        status: 401,        
+                    });
+                }
+                else{
+                    let act = new Act(
             {
                 username: req.body.username,
                 actid: req.body.actid,
                 caption: req.body.caption,
                 upvotes: req.body.upvotes,
                 timestamp: req.body.timestamp,
-                imgB64: req.body.imgB64
+                imgB64: req.body.imgB64,
+                categoryName: req.body.categoryName
             }
         );
 
@@ -223,6 +232,16 @@ exports.act_create = function (req, res,next) {
             }
             
         })
+        var myquery = {categoryName: req.body.categoryName};
+        var up=category[0].upvotes+1;
+        var newvalues = {$set: {no_acts: up}};
+        Category.updateOne(myquery,newvalues,function(err,res){
+                if(err)
+                    throw err;
+            });
+                }
+            });
+            
     }
     });
     
@@ -267,7 +286,6 @@ exports.all_act_category_detail=function(req,res,next){
 }
 
 exports.all_act_category_size=function(req,res,next){
-    
         Act.find({categoryName: req.params.categoryName}, function(err, acts){
        if(err){
            console.log(err);
@@ -277,6 +295,32 @@ exports.all_act_category_size=function(req,res,next){
 });
 }
 
+exports.act_upvote = function (req, res,next) {
+     Act.findOne({ actid: req.body.actid }, function (err, act) {
 
+        if (err) return next(err);
+        console.log(act);
+        if(act.length==0){
+            res.json({
+                status: 400,
+                message: "act does not exist"
+            });
+        }
 
+        else{
+
+            var myquery = {actid: req.body.actid};
+            var up=act.upvotes+1;
+            var newvalues = {$set: {upvotes: up}};
+            Act.updateOne(myquery,newvalues,function(err,res){
+                if(err)
+                    throw err;
+            });            
+            res.json({
+                status: 200,
+                message: "upvote successful"
+            })
+        }
+    });
+}
 
