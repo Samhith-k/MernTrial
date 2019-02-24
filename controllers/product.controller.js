@@ -59,7 +59,7 @@ exports.product_delete = function (req, res,next) {
     })
 };
 
-exports.user_create = function (req, res,next) {
+exports.user_create = function (req, res,next){
     let user = new User(
         {
             username: req.body.username,
@@ -69,14 +69,14 @@ exports.user_create = function (req, res,next) {
 
     user.save(function (err) {
         if (err) {
-            res.json({
+            res.status(400).json({
                 message: 'Username exists',
                 status: 400,
                 error: err
             });
         }
         else{
-            res.json({
+            res.status(201).json({
                 message: 'Sign up successful',
                 status: 201
             });
@@ -87,21 +87,22 @@ exports.user_create = function (req, res,next) {
 
 exports.user_details = function (req, res,next) {
     User.find({username:req.params.username}, function (err, user) {
+        console.log(req.params.username);        
         if (err) {
-            res.json({
+            res.status(400).json({
                 message: "Username does not exist",
                 status: 400 
             });
         }
         else{
             if(user.length==0){
-                res.json({
+                res.status(400).json({
                     message: "Username does not exist",
                     status: 400 
                 });
             }
             else{
-                res.json({
+                res.status(201).json({
                     status: 201,
                     message: "welcome",
                     data: user
@@ -117,10 +118,37 @@ exports.user_delete = function (req, res,next) {
      User.remove({ username: req.params.username }, function (err, something) {
                     console.log('inside Delete', something);
                 if (err) return next(err);
-                res.json({
+                res.status(200).json({
                     message: "deleted",
                     status: 200});}
 )};
+
+exports.user_login = function (req, res,next) {
+     User.find({ username: req.body.username }, function (err, user) {
+                console.log(req.body);
+                if (err) return next(err);
+                if(user.length==0){
+
+                    res.status(401).json({
+                        message: "username does not exist",
+                        status: 401
+                    })
+                }
+                else{
+                    if(user[0].password==req.body.password){
+                        res.status(200).send(user);
+                    }
+                    else{
+                        res.status(401).json({
+                            message: "invalid password",
+                            status: 401
+                       })
+                    }
+                }
+                console.log(user);
+        }
+)};
+
 
 exports.all_user_detail=function(req,res,next){
     
@@ -144,27 +172,24 @@ exports.category_create = function (req, res,next) {
             
         }
     );
-
     category.save(function (err) {
         if (err) {
-            res.json({
+            res.status(400).json({
                 message: 'category exists',
                 status: 400,
                 error: err
             });
         }
         else{
-            res.json({
+            res.status(201).json({
                 message: 'category successful',
                 status: 201
             });
         }
-        
     })
 };
 
 exports.all_category_detail=function(req,res,next){
-    
         Category.find({}, function(err, category){
        if(err){
            console.log(err);
@@ -181,7 +206,7 @@ exports.category_delete = function (req, res,next) {
      Category.remove({ categoryName: req.params.categoryName }, function (err, something) {
                     console.log('inside Delete', something);
                 if (err) return next(err);
-                res.json({
+                res.status(200).json({
                     message: "deleted",
                     status: 200});}
 )};
@@ -190,7 +215,7 @@ exports.category_delete = function (req, res,next) {
 exports.act_create = function (req, res,next) {
     User.find({username: req.body.username}, function(err,user){
         if(user.length==0){
-            res.json({
+            res.status(401).json({
                 message: 'username does not exist',
                 status: 401,        
             });
@@ -198,7 +223,7 @@ exports.act_create = function (req, res,next) {
         else{
             Category.find({categoryName: req.body.categoryName}, function(err,category){
                 if(category.length==0){
-                    res.json({
+                    res.status(401).json({
                         message: 'category does not exist',
                         status: 401,        
                     });
@@ -218,19 +243,18 @@ exports.act_create = function (req, res,next) {
 
         act.save(function (err) {
             if (err) {
-                res.json({
+                res.status(400).json({
                     message: 'actid exists',
                     status: 400,
                     error: err
                 });
             }
             else{
-                res.json({
+                res.status(201).json({
                     message: 'act creation successful',
                     status: 201
                 });
             }
-            
         })
         var myquery = {categoryName: req.body.categoryName};
         var up=category[0].upvotes+1;
@@ -241,24 +265,20 @@ exports.act_create = function (req, res,next) {
             });
                 }
             });
-            
     }
     });
-    
-    
 };
 
 exports.act_delete = function (req, res,next) {
      Act.remove({ actid: req.params.actid }, function (err, something) {
                     console.log('inside Delete', something);
                 if (err) return next(err);
-                res.json({
+                res.status(200).json({
                     message: "deleted",
                     status: 200});}
 )};
 
 exports.all_act_detail=function(req,res,next){
-    
         Act.find({}, function(err, acts){
        if(err){
            console.log(err);
@@ -297,18 +317,15 @@ exports.all_act_category_size=function(req,res,next){
 
 exports.act_upvote = function (req, res,next) {
      Act.findOne({ actid: req.body.actid }, function (err, act) {
-
         if (err) return next(err);
         console.log(act);
         if(act.length==0){
-            res.json({
+            res.status(400).json({
                 status: 400,
                 message: "act does not exist"
             });
         }
-
         else{
-
             var myquery = {actid: req.body.actid};
             var up=act.upvotes+1;
             var newvalues = {$set: {upvotes: up}};
@@ -316,7 +333,7 @@ exports.act_upvote = function (req, res,next) {
                 if(err)
                     throw err;
             });            
-            res.json({
+            res.status(200).json({
                 status: 200,
                 message: "upvote successful"
             })
