@@ -115,13 +115,24 @@ exports.user_details = function (req, res,next) {
 };
 
 exports.user_delete = function (req, res,next) {
-     User.remove({ username: req.params.username }, function (err, something) {
+     User.find({username:req.params.username}, function (err, user){
+        if(user.length==0){
+                res.status(400).json({
+                    message: "Username does not exist",
+                    status: 400 
+                });
+            }
+        else{
+            User.remove({ username: req.params.username }, function (err, something) {
                     console.log('inside Delete', something);
                 if (err) return next(err);
                 res.status(200).json({
                     message: "deleted",
                     status: 200});}
-)};
+)
+        }
+     })
+};
 
 exports.user_login = function (req, res,next) {
      User.find({ username: req.body.username }, function (err, user) {
@@ -293,7 +304,7 @@ exports.all_act_category_detail=function(req,res,next){
             end,
         } = req.query;
 
-        const buildQuery = start && end ?
+        const buildQuery = start && end && start-end<=100 ? 
         {
             categoryName: req.params.categoryName,
             actid: {
