@@ -214,13 +214,24 @@ exports.all_category_detail=function(req,res,next){
 }
 
 exports.category_delete = function (req, res,next) {
-     Category.remove({ categoryName: req.params.categoryName }, function (err, something) {
+     Category.find({categoryName: req.params.categoryName},function(err,category){
+        if(category.length==0){
+            res.status(400).json({
+                message: 'category does not exist',
+                status: 400,
+            });
+        }
+        else{
+            Category.remove({ categoryName: req.params.categoryName }, function (err, something) {
                     console.log('inside Delete', something);
                 if (err) return next(err);
                 res.status(200).json({
                     message: "deleted",
                     status: 200});}
-)};
+)
+        }
+     })
+     };
 
 
 exports.act_create = function (req, res,next) {
