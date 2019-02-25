@@ -286,13 +286,23 @@ exports.act_create = function (req, res,next) {
 };
 
 exports.act_delete = function (req, res,next) {
-     Act.remove({ actid: req.params.actid }, function (err, something) {
+     Act.find({ actid: req.params.actid }, function (err, act){
+        if(act.length==0){
+            res.status(400).json({
+                    message: "act id does not exist",
+                    status: 400});
+        }
+        else{
+            Act.remove({ actid: req.params.actid }, function (err, something) {
                     console.log('inside Delete', something);
                 if (err) return next(err);
                 res.status(200).json({
                     message: "deleted",
                     status: 200});}
-)};
+)
+        }
+     })
+     };
 
 exports.all_act_detail=function(req,res,next){
         Act.find({}, function(err, acts){
