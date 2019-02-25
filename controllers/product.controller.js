@@ -256,13 +256,7 @@ exports.act_create = function (req, res,next) {
                 });
             }
         })
-        var myquery = {categoryName: req.body.categoryName};
-        var up=category[0].upvotes+1;
-        var newvalues = {$set: {no_acts: up}};
-        Category.updateOne(myquery,newvalues,function(err,res){
-                if(err)
-                    throw err;
-            });
+        
                 }
             });
     }
@@ -292,8 +286,26 @@ exports.all_act_detail=function(req,res,next){
 }
 
 exports.all_act_category_detail=function(req,res,next){
+        console.log(req.query, req.params);
+
+        const {
+            start,
+            end,
+        } = req.query;
+
+        const buildQuery = start && end ?
+        {
+            categoryName: req.params.categoryName,
+            actid: {
+                $gt: start,
+                $lt: end,
+            },
+        } : 
+        {
+            categoryName: req.params.categoryName,   
+        };
     
-        Act.find({categoryName: req.params.categoryName}, function(err, acts){
+        Act.find(buildQuery, function(err, acts){
        if(err){
            console.log(err);
        } else {
