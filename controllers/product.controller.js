@@ -60,6 +60,11 @@ exports.product_delete = function (req, res,next) {
 };
 
 exports.user_create = function (req, res,next){
+    var regex = /\b[0-9a-f]{5,40}\b/;
+    if(!req.body.password.match(regex)){
+        console.log("b64") ;
+        res.status(400).json();                           
+    }
     let user = new User(
         {
             username: req.body.username,
@@ -69,17 +74,10 @@ exports.user_create = function (req, res,next){
 
     user.save(function (err) {
         if (err) {
-            res.status(400).json({
-                message: 'Username exists',
-                status: 400,
-                error: err
-            });
+            res.status(400).send();
         }
         else{
-            res.status(201).json({
-                message: 'Sign up successful',
-                status: 201
-            });
+            res.status(201).send();
         }
         
     })
@@ -120,7 +118,7 @@ exports.user_delete = function (req, res,next) {
                 res.status(400).json({
                     message: "Username does not exist",
                     status: 400 
-                });
+                })
             }
         else{
             User.remove({ username: req.params.username }, function (err, something) {
@@ -177,57 +175,66 @@ exports.all_user_detail=function(req,res,next){
 
 
 exports.category_create = function (req, res,next) {
+
+    console.log(req.body[0]);
+    if(req.body[0] === undefined){
+        res.status(405).send();
+    }
     let category = new Category(
         {
-            categoryName: req.body.categoryName
-            
+            categoryName: req.body[0] 
+   
         }
     );
     category.save(function (err) {
         if (err) {
-            res.status(400).json({
-                message: 'category exists',
-                status: 400,
-                error: err
-            });
+            res.status(400).send();
         }
+
         else{
-            res.status(201).json({
-                message: 'category successful',
-                status: 201
-            });
+            res.status(201).send();
         }
+        
     })
 };
 
 exports.all_category_detail=function(req,res,next){
+        var all_categories={};
         Category.find({}, function(err, category){
        if(err){
            console.log(err);
        } else {
-          res.json({
-            message : "all category",
-            data: category
-          });
+          if(category.length == 0){
+            res.status(204).json({});
+          }
+          else{           
+            for(i=0;i<category.length;i++){
+                all_categories[category[i]["categoryName"]]=category[i]["no_acts"];
+
+            }
+            res.status(200).send(all_categories);
+          }
        }
 });
 }
+exports.category_delete_empty= function(req, res,next){
+    res.status(405).send();
+};
+
+
+
 
 exports.category_delete = function (req, res,next) {
-     Category.find({categoryName: req.params.categoryName},function(err,category){
-        if(category.length==0){
-            res.status(400).json({
-                message: 'category does not exist',
-                status: 400,
-            });
+     Category.findOne({categoryName: req.params.categoryName},function(err,category){
+        console.log(category);
+        if(!category){
+            res.status(400).send();
         }
         else{
             Category.remove({ categoryName: req.params.categoryName }, function (err, something) {
                     console.log('inside Delete', something);
                 if (err) return next(err);
-                res.status(200).json({
-                    message: "deleted",
-                    status: 200});}
+                res.status(200).send();}
 )
         }
      })
@@ -237,26 +244,39 @@ exports.category_delete = function (req, res,next) {
 exports.act_create = function (req, res,next) {
     User.find({username: req.body.username}, function(err,user){
         if(user.length==0){
-            res.status(401).json({
-                message: 'username does not exist',
-                status: 401,        
-            });
+            res.status(400).json();
         }
         else{
             Category.find({categoryName: req.body.categoryName}, function(err,category){
                 if(category.length==0){
-                    res.status(401).json({
-                        message: 'category does not exist',
-                        status: 401,        
-                    });
+                    res.status(400).json();
                 }
+                
                 else{
+
+                    if("upvotes" in req.body){
+                        console.log("inside samarth");
+                        res.status(400).json();
+                    }
+                    var regex = /[0-9][0-9][-][0-9][0-9][-][0-9][0-9][0-9][0-9][:][0-9][0-9][-][0-9][0-9][-][0-9][0-9]/;
+                    if(!req.body.timestamp.match(regex)){
+                        console.log("TS") ;
+                        res.status(400).json(); 
+
+                    }
+                    var regex_b64 =/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
+                    if(!req.body.imgB64.match(regex_b64)){
+                         console.log("b64") ;
+                        res.status(400).json();  
+                                             
+                    }
+
                     let act = new Act(
             {
+
                 username: req.body.username,
-                actid: req.body.actid,
+                actid: req.body.actId,
                 caption: req.body.caption,
-                upvotes: req.body.upvotes,
                 timestamp: req.body.timestamp,
                 imgB64: req.body.imgB64,
                 categoryName: req.body.categoryName
@@ -265,17 +285,27 @@ exports.act_create = function (req, res,next) {
 
         act.save(function (err) {
             if (err) {
-                res.status(400).json({
-                    message: 'actid exists',
-                    status: 400,
-                    error: err
-                });
+                res.status(400).json();
             }
             else{
-                res.status(201).json({
-                    message: 'act creation successful',
-                    status: 201
-                });
+                Category.findOne({ categoryName: req.body.categoryName }, function (err, category) {
+                if (err) return next(err);
+                console.log(category);
+                if(category.length==0){
+                    res.status(400).json();
+                }
+                else{
+                    var myquery = {categoryName: req.body.categoryName};
+                    var up=category.no_acts+1;
+                    var newvalues = {$set: {no_acts: up}};
+                    Category.updateOne(myquery,newvalues,function(err,res){
+                        if(err)
+                            throw err;
+                    });            
+                    //res.status(200).json()
+                }
+            });
+                res.status(201).json();
             }
         })
         
@@ -286,19 +316,15 @@ exports.act_create = function (req, res,next) {
 };
 
 exports.act_delete = function (req, res,next) {
-     Act.find({ actid: req.params.actid }, function (err, act){
-        if(act.length==0){
-            res.status(400).json({
-                    message: "act id does not exist",
-                    status: 400});
+     Act.findOne({ actid: req.params.actid }, function (err, act){
+        if(!act){
+            res.status(400).json();
         }
         else{
             Act.remove({ actid: req.params.actid }, function (err, something) {
                     console.log('inside Delete', something);
                 if (err) return next(err);
-                res.status(200).json({
-                    message: "deleted",
-                    status: 200});}
+                res.status(200).send();}
 )
         }
      })
@@ -341,10 +367,13 @@ exports.all_act_category_detail=function(req,res,next){
        if(err){
            console.log(err);
        } else {
-          res.json({
-            message : "all acts",
-            data: acts
-          });
+          if(acts.length == 0){
+            res.status(204).json();
+          }
+          else{
+            res.status(201).send(acts);
+          }
+          
        }
 });
 }
@@ -360,27 +389,21 @@ exports.all_act_category_size=function(req,res,next){
 }
 
 exports.act_upvote = function (req, res,next) {
-     Act.findOne({ actid: req.body.actid }, function (err, act) {
+     Act.find({ actid: req.body[0] }, function (err, act) {
         if (err) return next(err);
         console.log(act);
         if(act.length==0){
-            res.status(400).json({
-                status: 400,
-                message: "act does not exist"
-            });
+            res.status(400).json();
         }
         else{
-            var myquery = {actid: req.body.actid};
-            var up=act.upvotes+1;
+            var myquery = {actid: req.body[0]};
+            var up=act[0].upvotes+1;
             var newvalues = {$set: {upvotes: up}};
             Act.updateOne(myquery,newvalues,function(err,res){
                 if(err)
                     throw err;
             });            
-            res.status(200).json({
-                status: 200,
-                message: "upvote successful"
-            })
+            res.status(200).json()
         }
     });
 }
