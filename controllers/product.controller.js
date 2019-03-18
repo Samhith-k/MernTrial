@@ -63,7 +63,8 @@ exports.user_create = function (req, res,next){
     var regex = /\b[0-9a-f]{5,40}\b/;
     if(!req.body.password.match(regex)){
         console.log("b64") ;
-        res.status(400).json();                           
+        res.status(400).json();
+        return;                           
     }
     let user = new User(
         {
@@ -116,6 +117,7 @@ exports.user_delete = function (req, res,next) {
      User.find({username:req.params.username}, function (err, user){
         if(user.length==0){
                 res.status(400).json()
+                return;
             }
         else{
             User.remove({ username: req.params.username }, function (err, something) {
@@ -245,6 +247,7 @@ exports.act_create = function (req, res,next) {
             Category.find({categoryName: req.body.categoryName}, function(err,category){
                 if(category.length==0){
                     res.status(400).json();
+                    return;
                 }
                 
                 else{
@@ -252,18 +255,19 @@ exports.act_create = function (req, res,next) {
                     if("upvotes" in req.body){
                         console.log("inside samarth");
                         res.status(400).json();
+                        return;
                     }
                     var regex = /[0-9][0-9][-][0-9][0-9][-][0-9][0-9][0-9][0-9][:][0-9][0-9][-][0-9][0-9][-][0-9][0-9]/;
                     if(!req.body.timestamp.match(regex)){
                         console.log("TS") ;
                         res.status(400).json(); 
-
+                        return;
                     }
                     var regex_b64 =/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
                     if(!req.body.imgB64.match(regex_b64)){
-                         console.log("b64") ;
+                        console.log("b64") ;
                         res.status(400).json();  
-                                             
+                        return;                     
                     }
 
                     let act = new Act(
@@ -281,6 +285,7 @@ exports.act_create = function (req, res,next) {
         act.save(function (err) {
             if (err) {
                 res.status(400).json();
+                return;
             }
             else{
                 Category.findOne({ categoryName: req.body.categoryName }, function (err, category) {
@@ -314,6 +319,7 @@ exports.act_delete = function (req, res,next) {
      Act.findOne({ actid: req.params.actid }, function (err, act){
         if(!act){
             res.status(400).json();
+            return;
         }
         else{
             Act.remove({ actid: req.params.actid }, function (err, something) {
@@ -389,6 +395,7 @@ exports.act_upvote = function (req, res,next) {
         console.log(act);
         if(act.length==0){
             res.status(400).json();
+            return;
         }
         else{
             var myquery = {actid: req.body[0]};
