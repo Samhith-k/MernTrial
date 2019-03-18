@@ -115,18 +115,13 @@ exports.user_details = function (req, res,next) {
 exports.user_delete = function (req, res,next) {
      User.find({username:req.params.username}, function (err, user){
         if(user.length==0){
-                res.status(400).json({
-                    message: "Username does not exist",
-                    status: 400 
-                })
+                res.status(400).json()
             }
         else{
             User.remove({ username: req.params.username }, function (err, something) {
                     console.log('inside Delete', something);
                 if (err) return next(err);
-                res.status(200).json({
-                    message: "deleted",
-                    status: 200});}
+                res.status(200).json();}
 )
         }
      })
