@@ -372,7 +372,7 @@ exports.all_act_category_detail=function(req,res,next){
             res.status(204).json();
           }
           else{
-            res.status(201).send(acts);
+            res.status(200).send(acts);
           }
           
        }
