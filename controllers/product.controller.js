@@ -2,62 +2,53 @@ const Product = require('../models/product.model');
 const User = require('../models/userModel');
 const Act = require('../models/actModel');
 const Category = require('../models/categoryModel');
-//Simple version, without validation or sanitation
-exports.test = function (req, res) {
-    res.send('Greetings from the Test controller!');
-};
+const Log = require('../models/logModel');
 
 
-exports.product_create = function (req, res,next) {
-    let product = new Product(
-        {
-            name: req.body.name,
-            price: req.body.price
-        }
-    );
 
-    product.save(function (err) {
-        if (err) {
-            return next(err);
-        }
-        res.send('Product Created successfully')
-    })
-};
+Log.find({},function(err,log)
+ {
+    if(log.length == 0 ){
+        let log = new Log({
+            http_req: 0
+        });
+        log.save(function (err) {})
+    }
+ })
 
-exports.all_product_detail=function(req,res,next){
-	
-	    Product.find({}, function(err, products){
-       if(err){
-           console.log(err);
-       } else {
-          res.send(products);
-       }
-});
+
+
+
+exports.count_get=function(req,res,next){
+ Log.find({},function(err,log)
+ {
+    if(err){console.log(err);
+        res.status(405).send();
+    }
+    else{
+        res.status(200).send(log[0].http_req);
+    }
+ })   
 }
 
 
-
-
-exports.product_details = function (req, res,next) {
-    Product.findById(req.params.id, function (err, product) {
-        if (err) return next(err);
-        res.send(product);
+exports.count_reset=function(req,res,next){
+    var up=0
+    var newvalues = {$set: {no_acts: up}};
+    Log.update({},newvalues,function(err,log)
+    {
+        if (err) {
+            console.log(err);
+            res.status(405).send();
+        }
+        else{
+            res.status(200).send();
+        }
     })
-};
 
-exports.product_update = function (req, res,next) {
-    Product.findByIdAndUpdate(req.params.id, {$set: req.body}, function (err, product) {
-        if (err) return next(err);
-        res.send('Product udpated.');
-    });
-};
+    //Category.updateOne(myquery,newvalues,function(err,res){
+}
 
-exports.product_delete = function (req, res,next) {
-    Product.findByIdAndRemove(req.params.id, function (err) {
-        if (err) return next(err);
-        res.send('Deleted successfully!');
-    })
-};
 
 exports.user_create = function (req, res,next){
     var regex = /\b[0-9a-f]{5,40}\b/;

@@ -23,6 +23,9 @@ router.delete('/categories',product_controller.category_delete_empty);
 router.post('/acts',product_controller.act_create);
 router.get('/acts',product_controller.all_act_detail);
 router.delete('/acts/:actid',product_controller.act_delete);
+router.get('/_count',product_controller.count_get)
+router.delete('/_count',product_controller.count_reset)
+
 
 router.get('/categories/:categoryName/acts',product_controller.all_act_category_detail);
 router.post('/categories/:categoryName/acts',product_controller.category_delete_empty);
